@@ -1,0 +1,58 @@
+<div class='card'>
+  <div class='card-header'>Friends Store (svelte component)</div>
+  <div class='card-body'>
+    <h4>Add a friend</h4>
+    <input bind:value='name' placeholder='type your friends name' /> <button on:click='addFriend()'>Add</button>
+    <hr>
+    {{#if friends.length }}
+    <h2>Friends currently in store...</h2>
+    {{#each friends as friend}}
+    <p><input type='checkbox' checked='{{favourites.indexOf(friend)!=-1}}' on:click='favourite(friend)' />{{friend}}  <button on:click='view(friend)'>view</button></p>
+    {{/each}}
+    {{/if}}
+    <hr>
+    {{#if view}}
+    <ViewItem type='friend' name='{{view}}' favourite='{{favourites.indexOf(view)!==-1}}' /> 
+    {{/if}}
+    <p>Store last updated at: {{lastUpdated}}</p>
+  </div>
+</div>
+<script language="javascript">
+
+  import store from '../redux/store';
+  import ViewItem from './item.svelte.html';
+  import { friendOperations, friendSelectors } from '../redux/ducks/friends';
+
+  export default {
+      oncreate() {
+      },
+      computed: {
+	  friends: viewData => friendSelectors.friends(viewData.friends),
+	  favourites: viewData => friendSelectors.favourites(viewData.friends),
+	  view: viewData => friendSelectors.view(viewData.friends),
+	  lastUpdated: viewData => viewData.lastUpdated
+      },
+      data() {
+	  return {
+	      viewData: {},
+	      name: ''
+	  };
+      },
+      methods: {
+	  addFriend() { 
+	      store.dispatch(friendOperations.addFriend(this.get("name")));
+	  },
+	  favourite(name) {
+	      store.dispatch(friendOperations.toggleFavourite(name));
+	  },
+	  view(name) {
+	      store.dispatch(friendOperations.viewFriend(name));
+	  }
+      },
+      components: {
+	  ViewItem
+      }
+  }
+</script> 
+
+

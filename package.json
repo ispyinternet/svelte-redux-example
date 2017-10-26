@@ -1,0 +1,51 @@
+{
+  "name": "brighter-mautic-chat-plugin",
+  "description": "A live chat plugin",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "rollup -c",
+    "build:watch": "npm run build -- -w",
+    "clean": "npm run clean:dist && rimraf node_modules",
+    "clean:dist": "rimraf dist",
+    "lint": "eslint ./src/**"
+  },
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-es2015-rollup": "^3.0.0",
+    "babel-preset-latest": "^6.24.1",
+    "buffer": "^5.0.6",
+    "crypto": "0.0.3",
+    "marked": "^0.3.6",
+    "path": "^0.12.7",
+    "rollup": "^0.41.6",
+    "rollup-babel": "^0.6.3",
+    "rollup-plugin-babel": "^2.7.1",
+    "rollup-plugin-closure-compiler-js": "^1.0.4",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-includepaths": "^0.2.2",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-node-resolve-magic": "^0.2.6",
+    "rollup-plugin-replace": "^2.0.0",
+    "rollup-plugin-svelte": "^1.8.1",
+    "rollup-watch": "^3.2.2",
+    "svelte-extras": "^1.1.1",
+    "svelte-transitions": "^1.1.1",
+    "url": "^0.11.0"
+  },
+  "dependencies": {
+    "axios": "^0.16.1",
+    "eventemitter3": "^2.0.3",
+    "pusher-js": "^4.1.0",
+    "redux": "^3.7.2",
+    "redux-duck": "^1.0.2",
+    "redux-logger": "^3.0.6",
+    "redux-stack": "^1.0.1",
+    "redux-thunk": "^2.2.0",
+    "reedux": "0.0.12",
+    "reselect": "^3.0.1"
+  }
+}

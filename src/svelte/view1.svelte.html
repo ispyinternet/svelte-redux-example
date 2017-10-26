@@ -1,0 +1,69 @@
+<div class='card'>
+  <div class='card-header'>Apple Store (svelte component)</div>
+  <div class='card-body'>
+    <h4>Add an apple</h4>
+    <input bind:value='appleName' placeholder='type an apple variety' /> <input bind:value='appleColour' placeholder='type its colour' /> <button on:click='addApple()'>Add</button>
+    <hr>
+    {{#if appleNames.length  }}
+    <h5>Apples currently in store...</h5>
+    <p>(use checkbox to favourite)</p>
+    {{#each appleNames as apple}}
+    <p><input type='checkbox' checked='{{favourites.indexOf(apple)!=-1}}' on:click='favourite(apple)' />{{apple}} ({{apples[apple].colour}}) <button on:click='view(apple)'>view</button></p>
+    {{/each}}
+    {{/if}}
+    <hr>
+    {{#if view}}
+    <ViewItem type='apple' name='{{view.name}}' colour='{{view.colour}}' favourite='{{favourites.indexOf(view.name)!==-1}}' />
+    {{/if}}
+    <p>Apple Store last updated at: {{lastUpdated}}</p>
+  </div>
+</div>
+
+<script language="javascript">
+  
+  import store from '../redux/store';
+  import ViewItem from './item.svelte.html';
+  import { appleOperations, appleSelectors } from '../redux/ducks/apples';
+
+  export default {
+
+      oncreate() {
+	  this.observe('viewData', viewData => console.log(viewData));
+      },
+
+      computed: {
+	  view: viewData => appleSelectors.viewApple(viewData.apples),
+	  favourites: viewData => appleSelectors.favouriteApples(viewData.apples),
+	  appleNames: viewData => appleSelectors.appleNames(viewData.apples),
+	  apples: viewData => appleSelectors.appleList(viewData.apples),
+	  lastUpdated: viewData => viewData.lastUpdated
+      },
+
+      data() {
+	  return {
+	      viewData: {},
+	      appleName: '',
+	      appleColour: ''
+	  };
+      },
+
+      methods: {
+	  addApple() {
+	      store.dispatch(appleOperations.addApple({ name: this.get("appleName"), colour: this.get("appleColour") }));
+	  },
+	  favourite(name) {
+	      store.dispatch(appleOperations.toggleFavouriteApple(name));
+	  },
+	  view(apple) {
+	      store.dispatch(appleOperations.viewApple(apple));
+	  }
+	  
+      },
+
+      components: {
+	  ViewItem
+      }
+  }
+</script> 
+
+

@@ -1,0 +1,2 @@
+const MODULE_NAME='REDUX-SVELTE-EXAMPLE';
+export default MODULE_NAME;

@@ -1,0 +1,193 @@
+<div class='card'>
+  <div class='card-header'>
+    Svelte Root Node.
+  </div>
+  <div class='card-body'>
+    <h2>App status: <span class='status'>{{ appStatus }}</span></h2>
+
+    <div class='button-actions'>
+      <button on:click='emptyStore()'>Empty Store</button> -  <input type='text' bind:value='newStatus' placeholder='type an app status'/> <button on:click='updateStatus()'>Update status</button>
+    </div>
+    
+    <div class='nav'>
+      <a on:click='switchView(1)'>Show Apples</a>     <a on:click='switchView(2)'>Show Cars</a>     <a on:click='switchView(3)'>Show Friends</a>     <a on:click='switchView(4)'>Show Favourites</a>
+    </div>
+
+    {{#if currentView==1}}
+    <View1 viewData={{view1Data}} />
+    {{elseif currentView==2}}  
+    <View2 viewData={{view2Data}} />
+    {{elseif currentView==3}}    
+    <View3 viewData={{view3Data}} />
+    {{elseif currentView==4}}    
+    <View4 viewData={{view4Data}} />
+    {{/if}}
+  </div>
+</div>
+
+<script language="javascript">
+
+  import { createSelector } from 'reselect';    
+
+    import store from '../redux/store';    
+
+    import { masterOperations, masterSelectors } from '../redux/ducks/master';
+    import { appleSelectors } from '../redux/ducks/apples';
+    import { carSelectors } from '../redux/ducks/cars';
+    
+    import View1 from './view1.svelte.html';
+    import View2 from './view2.svelte.html';
+    import View3 from './view3.svelte.html';
+    import View4 from './view4.svelte.html';
+    
+    /* setup redux reselect (memoized) selectors */
+    const applesSelector = state => state.apples ? state.apples : {};
+    const carsSelector = state => state.cars ? state.cars : {};
+    const friendsSelector = state => state.friends ? state.friends : {};
+    const favouriteApples = state => state.apples ? appleSelectors.getFavouriteApples(state.apples) : [];
+    const favouriteCars = state => state.cars ? carSelectors.getFavouriteCars(state.cars) : [];
+    
+    const view1Data = createSelector(
+	applesSelector,
+	(apples) =>
+	    {
+		let time = new Date();
+		return {
+		    apples,
+		    lastUpdated: time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds()
+		};
+	    });
+    
+    const view2Data = createSelector(
+	carsSelector,
+	(cars) =>
+	    {
+		let time = new Date();
+		return {
+		    cars,
+		    lastUpdated: time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds()
+		};
+	    });
+    
+    const view3Data = createSelector(
+	friendsSelector,
+	(friends) =>
+	    {
+		let time = new Date();	      
+		return {
+		    friends: friends,
+		    lastUpdated: time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds()
+		};
+	    });
+    
+    /* view4 data updates whenever there is a change to view1 or view3 */
+    const view4Data = createSelector(
+	favouriteApples,
+	favouriteCars,
+	(apples, cars) =>
+	    {
+		let time = new Date();
+		console.log(apples);
+		return {
+		    favouriteApples: apples,
+		    favouriteCars: cars,
+		    lastUpdated: time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds()
+		};
+	    });
+    
+    export default {
+	
+	oncreate() {
+	    
+	    this.unSubscribeStore = store.subscribe(this.getStoreUpdate.bind(this));
+
+	},
+
+	ondestroy() {
+	    this.unsubscribeStore();
+	},
+	
+	computed: {
+
+	    // view data is dependent on store state.
+	    // reselect selectors dont recalculate data if relevent state doesnt change.
+	    // how much does this attempt at optimisation translate or get lost with svelte?
+	    
+	    view1Data: state => view1Data(state),
+	    view2Data: state => view2Data(state),
+	    view3Data: state => view3Data(state),
+	    view4Data: state => view4Data(state),
+	    appStatus: state => masterSelectors.getAppState(state)
+	},
+
+	// this views data
+	data() {
+	    return {
+		currentView: 1,
+		newStatus:'',
+		state: {} // actual state of the redux store
+	    };
+	},
+
+	// this views methods
+	methods: {
+	    getStoreUpdate() {
+		this.set({ state: store.getState()});
+	    },
+	    emptyStore() {
+		store.dispatch(masterOperations.resetApp());
+		store.dispatch(masterOperations.setState("APP RESET... STORE EMPTY"));
+	    },
+	    emptyView(i) {
+		store.dispatch(windowActions['emptyView' + i]);
+	    },
+	    switchView(id) {
+		this.set( { currentView: id });
+	    },
+	    updateStatus(msg) {
+		store.dispatch(masterOperations.setState(this.get("newStatus")));
+		this.set( { "newStatus" : ''} );
+	    }
+	},
+	
+	components: {
+	    View1,
+	    View2,
+	    View3,
+	    View4
+	}
+    }
+    
+</script>
+<style>
+  .nav {
+  border:1px;
+  solid: #ddd;
+  padding:10px;
+  }
+  
+  .nav a {
+  cursor:pointer;
+  display:inline-block;
+  padding:5px;
+  text-decoration:none;
+  background-color:#ddd;
+  transition:.5s;
+  }
+  .nav a:hover {
+  background-color:#ccc;
+  }
+  .button-actions {
+  border: 1px solid #aaa;
+  padding:10px;
+  }
+  h1 {
+  background-color:#fc0;
+  padding:10px;
+  }
+  .status {
+  color:#f00;
+  font-size:.5em;
+  }
+</style>
+

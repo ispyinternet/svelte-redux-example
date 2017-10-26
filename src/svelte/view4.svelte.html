@@ -1,0 +1,54 @@
+<div class='card'>
+  <div class='card-header'>Your Favourites (svelte component)</div>
+  <div class='card-body'>
+    <p>Of course, we wouldn&apos;t want to upset any friends by not including them in your friends list, so we dont include friends i.e. update friend favourites and this view component should be untouched (check the timer)</p>
+    <hr>
+    {{#if favouriteApples.length}}
+    <h2>Apples</h2>
+    {{#each favouriteApples as apple}}
+    <p>{{apple.name}} ({{apple.colour}}) <button on:click='unFavouriteApple(apple.name)'>Un-favourite</button></p>
+    {{/each}}
+    {{/if}}
+    {{#if favouriteCars.length}}
+    <h2>Cars</h2>
+    {{#each favouriteCars as car}}
+    <p>{{car.name}} ({{car.colour}}) <button on:click='unFavouriteCar(car.name)'>Un-favourite</button></p>
+    {{/each}}
+    {{/if}}
+    <hr>
+    <p>Store last updated at: {{lastUpdated}}</p>
+  </div>
+</div>
+<script language="javascript">
+    
+    import { appleOperations } from '../redux/ducks/apples';
+  import { carOperations } from '../redux/ducks/cars';		   
+  import store from '../redux/store';
+  
+  export default {
+      oncreate() {
+      },
+      computed: {
+	  favouriteApples: viewData => viewData.favouriteApples,
+	  favouriteCars: viewData => viewData.favouriteCars,
+	  lastUpdated: viewData => viewData.lastUpdated
+      },
+      data() {
+	  return {
+	      viewData:{}	      
+	  };
+      },
+      methods: {
+	  unFavouriteCar(car) {
+	      store.dispatch(carOperations.toggleFavourite(car));
+	  },
+	  unFavouriteApple(apple) {
+	      store.dispatch(appleOperations.toggleFavouriteApple(apple));
+	  }	  
+      },
+      components: {
+      }
+  }
+</script> 
+
+

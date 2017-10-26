@@ -1,0 +1,66 @@
+<div class='card'>
+  <div class='card-header'>Car Store (svelte component)</div>
+  <div class='card-body'>
+    <h4>Add a car</h4>
+    <input bind:value='carName' placeholder='type a car model' /> <input bind:value='carColour' placeholder='type its colour' /> <button on:click='addCar()'>Add</button>
+    <hr>
+    {{#if carNames.length}}
+    <h5>Cars currently in store...</h5>
+    <p>check your favourites:</p>
+    {{#each carNames as car}}
+    <p><input type='checkbox' checked='{{favourites.indexOf(car)!=-1}}' on:click='favourite(car)' /> {{car}} ({{cars[car].colour}}) <button on:click='view(car)'>view</button></p>
+    {{/each}}
+    {{/if}}
+    <hr>
+    {{#if view}}
+    <ViewItem type='car' name='{{view.name}}' colour='{{view.colour}}' favourite='{{favourites.indexOf(view.name)!==-1}}' />
+    {{/if}}
+    <p>Car Store last updated at: {{lastUpdated}}</p>
+  </div>
+</div>
+<script language="javascript">
+  
+  import store from '../redux/store';
+  import ViewItem from './item.svelte.html';
+  import { carOperations, carSelectors } from '../redux/ducks/cars';
+
+  export default {
+
+      oncreate() {
+      },
+
+      computed: {
+	  view: viewData => carSelectors.viewCar(viewData.cars),
+	  cars: viewData => carSelectors.carList(viewData.cars),
+	  carNames: viewData => carSelectors.carNames(viewData.cars),
+	  favourites: viewData => carSelectors.favourites(viewData.cars),
+	  lastUpdated: viewData => viewData.lastUpdated
+      },
+
+      data() {
+	  return {
+	      viewData: {},
+	      carName: '',
+	      carColour: ''
+	  };
+      },
+
+      methods: {
+	  addCar() { 
+	      store.dispatch(carOperations.addCar({ name: this.get("carName"), colour: this.get("carColour") }));
+	  },
+	  view(car) {
+	      store.dispatch(carOperations.viewCar(car));
+	  },
+	  favourite(car) {
+	      store.dispatch(carOperations.toggleFavourite(car));
+	  }
+      },
+
+      components: {
+	  ViewItem
+      }
+  }
+</script> 
+
+
